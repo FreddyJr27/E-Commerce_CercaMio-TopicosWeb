@@ -9,7 +9,7 @@ body {
 
 /* Fondo de la página */
 .background {
-  background-image: url('./image/fondocercamio.webp'); /* Ruta relativa desde 'public' */
+  background-image: url('../image/fondocercamio.png'); /* Ruta relativa desde src hacia /image */
   background-size: cover; /* Escala la imagen para cubrir todo el área */
   background-position: center; /* Centra la imagen */
   width: 100%; /* Ocupa todo el ancho de la ventana */

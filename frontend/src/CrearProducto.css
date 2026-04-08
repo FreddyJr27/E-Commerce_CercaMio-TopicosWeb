@@ -157,4 +157,13 @@ select {
 
 }
 
+.crear-producto-preview {
+  margin-top: 0.75rem;
+  max-width: 240px;
+  max-height: 180px;
+  border-radius: 8px;
+  border: 1px solid #D1C4E9;
+  object-fit: cover;
+}
+
   

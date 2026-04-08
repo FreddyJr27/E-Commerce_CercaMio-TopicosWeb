@@ -40,7 +40,7 @@ class Producto(models.Model):
     stock = models.PositiveIntegerField()
     categoria = models.ForeignKey('Categoria', on_delete=models.CASCADE, related_name='productos')
     marca = models.CharField(max_length=100)
-    imagen = models.URLField(max_length=500)
+    imagen = models.TextField()
     dimensiones = models.OneToOneField(
         'Dimensiones',
         on_delete=models.CASCADE,

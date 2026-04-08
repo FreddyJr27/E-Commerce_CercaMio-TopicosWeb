@@ -221,6 +221,36 @@ textarea, input[type="number"] {
     white-space: nowrap;
 }
 
+.rating-stars {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.star-button {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    color: #c7c7c7;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.star-button--active {
+    color: #FFD700;
+}
+
+.star {
+    font-size: 1.2rem;
+    color: #c7c7c7;
+    margin-left: 4px;
+}
+
+.star--filled {
+    color: #FFD700;
+}
+
 .reseña-item {
     background-color: #f9f9f9;
     border: 1px solid #ddd;
@@ -232,6 +262,27 @@ textarea, input[type="number"] {
 
 .modal-content {
     animation: fadeIn 0.3s ease-in-out;
+}
+
+.boton-ventana {
+    background-color: #7e57c2;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    margin-top: 12px;
+}
+
+.boton-ventana:hover {
+    background-color: #6a1bb1;
+    transform: translateY(-1px);
+}
+
+.boton-ventana:active {
+    transform: translateY(0);
 }
 
 @keyframes fadeIn {

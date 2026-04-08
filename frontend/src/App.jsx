@@ -14,6 +14,7 @@ function App() {
   };
 
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [error, setError] = useState(null); // Estado para manejar errores
 
   const fetchProductos = async () => {
@@ -27,12 +28,46 @@ function App() {
     }
   };
   const handleCategoryClick = (categoryId) => {
+    if (!categoryId) {
+      return;
+    }
     navigate(`/categoria/${categoryId}`);
   };
 
   useEffect(() => {
     fetchProductos();
   }, []);
+
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const response = await axios.get('/api/categorias/');
+        setCategorias(Array.isArray(response.data) ? response.data : []);
+      } catch (err) {
+        console.error('Error fetching categorias:', err);
+      }
+    };
+
+    fetchCategorias();
+  }, []);
+
+  const findCategoriaId = (nombre) => {
+    const normalized = nombre.trim().toLowerCase();
+    const categoria = categorias.find(
+      (item) => item.nombre?.trim().toLowerCase() === normalized
+    );
+    return categoria ? categoria.id : null;
+  };
+
+  const categoryIds = {
+    tecnologia: findCategoriaId('Smartphones') || findCategoriaId('Laptops') || findCategoriaId('Mobile Accessories'),
+    auto: findCategoriaId('Vehicle') || findCategoriaId('Motorcycle'),
+    hogar: findCategoriaId('Home Decoration') || findCategoriaId('Furniture'),
+    alimentos: findCategoriaId('Groceries'),
+    ropa: findCategoriaId('Mens Shirts') || findCategoriaId('Womens Dresses') || findCategoriaId('Tops'),
+    deportes: findCategoriaId('Sports Accessories'),
+    otros: findCategoriaId('Beauty') || findCategoriaId('Fragrances'),
+  };
 
   // Filtrar los productos más nuevos
   const productosMasNuevos = productos
@@ -41,25 +76,25 @@ function App() {
   console.log(productosMasNuevos);
 
   // Filtrar los productos de la categoría "Otros"
-  const productosOtros = productos.filter(producto => producto.categoria_id === 2).slice(0, 16);
+  const productosOtros = productos.filter(producto => producto.categoria_id === categoryIds.otros).slice(0, 16);
   console.log(productosOtros);
 
-  const productosalimentos = productos.filter(producto => producto.categoria_id === 1).slice(0, 16);
+  const productosalimentos = productos.filter(producto => producto.categoria_id === categoryIds.alimentos).slice(0, 16);
   console.log(productosOtros);
 
-  const productohogar = productos.filter(producto => producto.categoria_id === 5).slice(0, 16);
+  const productohogar = productos.filter(producto => producto.categoria_id === categoryIds.hogar).slice(0, 16);
   console.log(productosOtros);
 
-  const productotecnologia = productos.filter(producto => producto.categoria_id === 4).slice(0, 16);
+  const productotecnologia = productos.filter(producto => producto.categoria_id === categoryIds.tecnologia).slice(0, 16);
   console.log(productosOtros);
 
-  const productoauto = productos.filter(producto => producto.categoria_id === 3).slice(0, 16);
+  const productoauto = productos.filter(producto => producto.categoria_id === categoryIds.auto).slice(0, 16);
   console.log(productosOtros);
 
-  const productoropa = productos.filter(producto => producto.categoria_id === 6).slice(0, 16);
+  const productoropa = productos.filter(producto => producto.categoria_id === categoryIds.ropa).slice(0, 16);
   console.log(productosOtros);
 
-  const productodeportes = productos.filter(producto => producto.categoria_id === 7).slice(0, 16);
+  const productodeportes = productos.filter(producto => producto.categoria_id === categoryIds.deportes).slice(0, 16);
   console.log(productosOtros);
 
   return (
@@ -78,31 +113,31 @@ function App() {
             <div className="categorias">
               <h2>Categorías</h2>
               <ul>
-                <li onClick={() => handleCategoryClick(4)}>
+                <li onClick={() => handleCategoryClick(categoryIds.tecnologia)}>
                   <h3>Tecnología</h3>
                   <img src=".\image\tecnologia.avif" alt="Tecnología" style={{ paddingTop: '20px' }}/>
                 </li>
-                <li  onClick={() => handleCategoryClick(3)}>
+                <li  onClick={() => handleCategoryClick(categoryIds.auto)}>
                   <h3>Auto</h3>
                   <img src=".\image\camionet.png" alt="Auto" />
                 </li>
-                <li onClick={() => handleCategoryClick(5)}> 
+                <li onClick={() => handleCategoryClick(categoryIds.hogar)}> 
                   <h3>Hogar e Inmuebles</h3>
                   <img src=".\image\sofa4.png" alt="Hogar e Inmuebles" style={{ paddingTop: '30px' }} />
                 </li>
-                <li onClick={() => handleCategoryClick(1)}>
+                <li onClick={() => handleCategoryClick(categoryIds.alimentos)}>
                   <h3>Alimentos</h3>
                   <img src=".\image\alimentos.png" alt="Alimentos" />
                 </li>
-                <li onClick={() => handleCategoryClick(6)}>
+                <li onClick={() => handleCategoryClick(categoryIds.ropa)}>
                   <h3>Ropa</h3>
                   <img src=".\image\ropa.png" alt="Ropa" style={{ width: '60%' , height: '60%', paddingTop: '10px'}} />
                 </li>
-                <li onClick={() => handleCategoryClick(7)}>
+                <li onClick={() => handleCategoryClick(categoryIds.deportes)}>
                   <h3>Deportes</h3>
                   <img src=".\image\deportes.png" alt="Deportes" style={{ width: '70%' , height: '70%', paddingTop: '10px'}} />
                 </li>
-                <li onClick={() => handleCategoryClick(2)}>
+                <li onClick={() => handleCategoryClick(categoryIds.otros)}>
                   <h3>Otros</h3>
                   <img src=".\image\eladagiodejuan.png" alt="Otros" style={{ width: '70%' , height: '70%', paddingTop: '1px'}} />
                 </li>
