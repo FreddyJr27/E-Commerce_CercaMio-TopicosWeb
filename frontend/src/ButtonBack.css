@@ -1,0 +1,31 @@
+.button-back {
+  align-items: center;
+  background: #7e57c2;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  left: 24px;
+  position: absolute;
+  top: 24px;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  width: 44px;
+}
+
+.button-back:hover {
+  background: #6a1b9a;
+  transform: translateY(-1px);
+}
+
+.button-back:active {
+  transform: translateY(0);
+}
+
+.button-back__icon {
+  height: 22px;
+  width: 22px;
+}

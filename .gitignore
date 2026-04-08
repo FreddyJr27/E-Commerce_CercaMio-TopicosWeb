@@ -7,3 +7,6 @@ __pycache__
 .vscode/*
 !.vscode/extensions.json
 *.kate-swp
+*.sqlite3
+backend/.env
+.env

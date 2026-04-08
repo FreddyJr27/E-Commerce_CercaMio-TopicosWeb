@@ -67,6 +67,9 @@ venv\Scripts\activate
 
 pip install -r requirements.txt
 
+# (Opcional) Usar SQLite temporalmente si no tienes MySQL
+# En backend/.env usa: USE_SQLITE=1
+
 # Ajusta credenciales de BD en backend/backend/settings.py si es necesario
 python manage.py migrate
 

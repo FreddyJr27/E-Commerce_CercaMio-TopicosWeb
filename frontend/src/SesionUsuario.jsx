@@ -2,8 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "./SesionUsuario.css";
-import Navbar from './Navbar';
-import Footer from './Footer';
+import ButtonBack from './ButtonBack';
 import axios from 'axios'; // Asegúrate de instalar axios
 
 const SesionUsuario = () => {
@@ -55,11 +54,6 @@ const SesionUsuario = () => {
     }
   };
 
-
-
-
-
-
   const handleRegisterClick = (e) => {
     e.preventDefault();
     navigate('/registro');
@@ -67,7 +61,7 @@ const SesionUsuario = () => {
 
   return (
     <div className='cuerpo'>
-      <Navbar />
+      <ButtonBack />
       <div className="login-container">
         <div className="login-card">
           <h1 className="login-title">Iniciar Sesión</h1>
@@ -101,7 +95,6 @@ const SesionUsuario = () => {
           </p>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

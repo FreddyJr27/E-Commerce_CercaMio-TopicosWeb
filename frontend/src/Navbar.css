@@ -78,6 +78,13 @@
   font-size: 18px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+}
+
+.user-circle__image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
 }
 
 .user-circle:hover {

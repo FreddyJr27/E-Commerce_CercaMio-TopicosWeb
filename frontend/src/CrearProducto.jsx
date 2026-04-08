@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './CrearProducto.css';
 import Navbar from './Navbar';
-import Footer from './Footer';
 import { useNavigate } from 'react-router-dom';
 
 const CrearProducto = () => {
@@ -289,7 +288,6 @@ const CrearProducto = () => {
                     </form>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

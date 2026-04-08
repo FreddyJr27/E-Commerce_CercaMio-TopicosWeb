@@ -1,12 +1,10 @@
-
 /* General Container */
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
-    
-    
+    min-height: 90vh;
+    padding: 24px;
   }
   
   /* Card */

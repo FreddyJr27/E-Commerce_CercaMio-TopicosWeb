@@ -4,6 +4,7 @@ body {
   font-family: 'Roboto', sans-serif;
   padding: 0;
   background-color: #FFFAF0;
+  overflow-x: hidden;
 }
 
 /* Fondo de la página */
@@ -11,15 +12,31 @@ body {
   background-image: url('./image/fondocercamio.webp'); /* Ruta relativa desde 'public' */
   background-size: cover; /* Escala la imagen para cubrir todo el área */
   background-position: center; /* Centra la imagen */
-  margin-top: 10px;
   width: 100%; /* Ocupa todo el ancho de la ventana */
-  height: 100vh; /* Ocupa todo el alto de la ventana */
+  height: 90vh; /* Ocupa todo el alto de la ventana */
 }
 
 /* Sección principal */
 .main {
   padding: 20px;
   text-align: center;
+}
+
+.info-section {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.info-section h2 {
+  color: #4a148c;
+  margin-bottom: 10px;
+}
+
+.info-section p {
+  color: #333333;
+  margin: 0;
 }
 
 /* Sección de categorías */
@@ -91,7 +108,8 @@ body {
   flex-direction: column;
   gap: 20px;
   width: 100%;
-  align-items: center;
+  align-items: stretch;
+  
 }
 
 /* Estilo para los rectángulos */
@@ -100,6 +118,7 @@ body {
   height: 200px;
   background-color: #b39ddb;
   display: flex;
+  box-sizing: border-box;
 
   position: relative;
   padding: 10px;

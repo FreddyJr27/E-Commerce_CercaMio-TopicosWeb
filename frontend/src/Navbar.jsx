@@ -6,12 +6,17 @@ function Navbar() {
   const navigate = useNavigate(); // Usamos el hook para navegar
   const [user, setUser] = useState(null); // Estado para almacenar el objeto del usuario
   const [menuVisible, setMenuVisible] = useState(false); // Controla si el menú está visible
+  const [avatar, setAvatar] = useState('');
 
   // Verificar si hay un usuario almacenado en el localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user'); // Obtiene el objeto completo del localStorage
     if (storedUser) {
       setUser(JSON.parse(storedUser)); // Parsea y establece el objeto del usuario
+    }
+    const storedAvatar = localStorage.getItem('userAvatar');
+    if (storedAvatar) {
+      setAvatar(storedAvatar);
     }
   }, []);
 
@@ -65,7 +70,11 @@ function Navbar() {
             <div className="user-container">
               {/* Círculo con la primera letra del username */}
               <div className="user-circle" onClick={handleUserCircleClick}>
-                {user.username[0].toUpperCase()}
+                {avatar ? (
+                  <img src={avatar} alt="Avatar" className="user-circle__image" />
+                ) : (
+                  user.username[0].toUpperCase()
+                )}
               </div>
               {/* Menú desplegable */}
               {menuVisible && (
