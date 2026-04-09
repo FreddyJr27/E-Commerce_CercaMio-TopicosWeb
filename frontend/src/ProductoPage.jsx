@@ -21,6 +21,19 @@ const ProductoPage = () => {
     const [reseñaEnviado, setReseñaEnviado] = useState(false);
     const [usuarioProducto, setUsuarioProducto] = useState(null);
 
+    const renderStars = (value) => {
+        const rating = Number(value) || 0;
+        return Array.from({ length: 5 }, (_, index) => (
+            <span
+                key={index}
+                className={index < rating ? 'star star--filled' : 'star'}
+                aria-hidden="true"
+            >
+                ★
+            </span>
+        ));
+    };
+
     const navigate = useNavigate();
 
     const handleBackClick = () => {
@@ -220,7 +233,7 @@ const ProductoPage = () => {
                             <div key={index} className="reseña">
                                 <p><strong>Usuario:</strong> {reseña.nombre_usuario}</p>
                                 <p><strong>Email:</strong> {reseña.email_usuario}</p>
-                                <p><strong>Calificación:</strong> {reseña.calificacion}/5</p>
+                                <p><strong>Calificación:</strong> {renderStars(reseña.calificacion)}</p>
                                 <p><strong>Comentario:</strong> {reseña.comentario}</p>
                                 <p><strong>Fecha:</strong> {new Date(reseña.fecha).toLocaleDateString()}</p>
                                 <hr />
@@ -239,14 +252,20 @@ const ProductoPage = () => {
                         <button className="modal-close" onClick={handleCloseModal}>X</button>
                         <h2>Escribe tu reseña</h2>
                         <div>
-                            <label>Calificación (1-5):</label>
-                            <input
-                                type="number"
-                                value={calificacion}
-                                onChange={(e) => setCalificacion(e.target.value)}
-                                min="1"
-                                max="5"
-                            />
+                            <label>Calificación:</label>
+                            <div className="rating-stars" role="radiogroup" aria-label="Calificacion">
+                                {[1, 2, 3, 4, 5].map((value) => (
+                                    <button
+                                        key={value}
+                                        type="button"
+                                        className={value <= calificacion ? 'star-button star-button--active' : 'star-button'}
+                                        onClick={() => setCalificacion(value)}
+                                        aria-label={`${value} estrella${value > 1 ? 's' : ''}`}
+                                    >
+                                        ★
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         <div>
                             <label>Comentario:</label>

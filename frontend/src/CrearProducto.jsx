@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './CrearProducto.css';
 import Navbar from './Navbar';
@@ -6,6 +6,60 @@ import { useNavigate } from 'react-router-dom';
 
 const CrearProducto = () => {
     const navigate = useNavigate();
+
+    const formatApiErrors = (data, status) => {
+        if (!data) {
+            return status ? `Error ${status} al crear producto.` : 'Error al crear producto.';
+        }
+
+        if (typeof data === 'string') {
+            return data;
+        }
+
+        if (Array.isArray(data)) {
+            return data.join('\n');
+        }
+
+        if (data.detail) {
+            return data.detail;
+        }
+
+        return Object.entries(data)
+            .map(([field, messages]) => {
+                if (Array.isArray(messages)) {
+                    return `${field}: ${messages.join(', ')}`;
+                }
+                return `${field}: ${messages}`;
+            })
+            .join('\n');
+    };
+
+    const translateCategoryName = (name) => {
+        if (!name) return '';
+        const key = name.trim().toLowerCase();
+        const translations = {
+            furniture: 'Muebles',
+            groceries: 'Comestibles',
+            'home decoration': 'Decoracion del hogar',
+            'kitchen accessories': 'Accesorios de cocina',
+            laptops: 'Portatiles',
+            'mens shirts': 'Camisas de hombre',
+            'mens shoes': 'Zapatos de hombre',
+            'mens watches': 'Relojes de hombre',
+            'mobile accessories': 'Accesorios moviles',
+            motorcycle: 'Motocicleta',
+            'skin care': 'Cuidado de la piel',
+            smartphones: 'Telefonos inteligentes',
+            'sports accessories': 'Accesorios deportivos',
+            sunglasses: 'Gafas de sol',
+            tablets: 'Tabletas',
+            tops: 'Blusas',
+            vehicle: 'Vehiculos',
+            'womens bags': 'Bolsos de mujer',
+        };
+
+        return translations[key] || name;
+    };
 
     const generateRandomSku = () => {
         const length = Math.floor(Math.random() * 5) + 8; // Genera un número entre 8 y 12
@@ -27,16 +81,28 @@ const CrearProducto = () => {
         cantidad_minima: 1,
         sku: generateRandomSku(),
     });
+    const [imagenPreview, setImagenPreview] = useState('');
 
-    const categorias = [
-        { id: 1, nombre: "alimentos", descripcion: "se come" },
-        { id: 2, nombre: "otros", descripcion: "otros objetos a la venta" },
-        { id: 3, nombre: "auto", descripcion: "carro a la venta" },
-        { id: 4, nombre: "tecnologia", descripcion: "cosas tecnologicas" },
-        { id: 5, nombre: "hogar e inmuebles", descripcion: "cosas del hogar" },
-        { id: 6, nombre: "ropa", descripcion: "cualquier tipo de prenda de vestir" },
-        { id: 7, nombre: "deportes", descripcion: "cualquier objeto de deportes" },
-    ];
+    const [categorias, setCategorias] = useState([]);
+    const [categoriasError, setCategoriasError] = useState('');
+
+    useEffect(() => {
+        const fetchCategorias = async () => {
+            try {
+                const response = await axios.get('/api/categorias/');
+                const data = Array.isArray(response.data) ? response.data : [];
+                setCategorias(data);
+                if (data.length > 0) {
+                    setFormData((prev) => ({ ...prev, categoria_id: data[0].id }));
+                }
+            } catch (error) {
+                console.error('Error al cargar categorias:', error.response?.data || error.message);
+                setCategoriasError('No se pudieron cargar las categorias.');
+            }
+        };
+
+        fetchCategorias();
+    }, []);
 
     const handleInputChange = (e) => {
         const { id, value } = e.target;
@@ -53,6 +119,25 @@ const CrearProducto = () => {
         } else {
             setFormData({ ...formData, [id]: value });
         }
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            alert('Selecciona un archivo de imagen valido.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (typeof reader.result === 'string') {
+                setFormData({ ...formData, imagen: reader.result });
+                setImagenPreview(reader.result);
+            }
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSubmit = async (e) => {
@@ -116,10 +201,11 @@ const CrearProducto = () => {
                 cantidad_minima: 1,
                 sku: generateRandomSku(),
             });
+            setImagenPreview('');
             navigate('/'); // Corrige el uso de `useNavigate` como función
         } catch (error) {
             console.error('Error al crear el producto:', error.response?.data);
-            alert('Hubo un error al crear el producto.');
+            alert(formatApiErrors(error.response?.data, error.response?.status));
         }
     };
 
@@ -192,14 +278,20 @@ const CrearProducto = () => {
                             />
                         </div>
                         <div className="campo mediano">
-                            <label htmlFor="imagen">URL de la Imagen</label>
+                            <label htmlFor="imagen">Imagen del producto</label>
                             <input
-                                type="text"
+                                type="file"
                                 id="imagen"
-                                placeholder="URL de la imagen"
-                                value={formData.imagen}
-                                onChange={handleInputChange}
+                                accept="image/*"
+                                onChange={handleImageChange}
                             />
+                            {imagenPreview ? (
+                                <img
+                                    src={imagenPreview}
+                                    alt="Vista previa"
+                                    className="crear-producto-preview"
+                                />
+                            ) : null}
                         </div>
                         <div className="campo-doble">
                             <div className='dimensiones'> 
@@ -274,13 +366,17 @@ const CrearProducto = () => {
                                 id="categoria_id"
                                 value={formData.categoria_id}
                                 onChange={handleInputChange}
+                                disabled={categorias.length === 0}
                             >
                                 {categorias.map((categoria) => (
                                     <option key={categoria.id} value={categoria.id}>
-                                        {categoria.nombre}
+                                        {translateCategoryName(categoria.nombre)}
                                     </option>
                                 ))}
                             </select>
+                            {categoriasError ? (
+                                <p className="error-message">{categoriasError}</p>
+                            ) : null}
                         </div>
                         <button type="submit" className="boton-crear-producto">
                             Crear Producto
