@@ -84,8 +84,3 @@ class Resena(models.Model):
 
     def __str__(self):
         return f'{self.calificacion} por {self.nombre_usuario} del producto {self.producto}'
-
-
-
-
-

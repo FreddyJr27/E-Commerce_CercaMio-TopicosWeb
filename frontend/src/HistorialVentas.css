@@ -1,0 +1,96 @@
+.sales-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f6f8fc 0%, #eef3ff 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.sales-content {
+  width: min(1200px, 94%);
+  margin: 24px auto 40px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(13, 32, 70, 0.12);
+}
+
+.sales-content h1 {
+  margin: 0 0 22px;
+  color: #1b3468;
+  font-size: 1.9rem;
+}
+
+.sales-table-section {
+  margin-bottom: 28px;
+}
+
+.sales-table-section h2 {
+  margin: 0 0 10px;
+  color: #2a4380;
+  font-size: 1.2rem;
+}
+
+.sales-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #dce4f5;
+  border-radius: 10px;
+}
+
+.sales-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+}
+
+.sales-table thead {
+  background-color: #edf2ff;
+}
+
+.sales-table th,
+.sales-table td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #edf0f9;
+  color: #223152;
+}
+
+.sales-table tbody tr:hover {
+  background-color: #f8faff;
+}
+
+.sales-empty-row {
+  text-align: center;
+  color: #5f6f95;
+}
+
+.sales-table .sales-input {
+  width: 42px !important;
+  max-width: 42px;
+  min-width: 42px;
+  display: inline-block;
+  box-sizing: border-box;
+  border: 1px solid #ccd7f1;
+  border-radius: 6px;
+  padding: 3px 5px;
+  font-size: 0.9rem;
+  color: #223152;
+}
+
+.sales-select {
+  border: 1px solid #ccd7f1;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #223152;
+  background-color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .sales-content {
+    padding: 18px;
+  }
+
+  .sales-content h1 {
+    font-size: 1.5rem;
+  }
+}

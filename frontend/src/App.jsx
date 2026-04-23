@@ -5,6 +5,19 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import axios from 'axios';
 
+const normalizeText = (value) =>
+  value
+    ?.toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+const normalizeId = (value) => {
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? null : parsed;
+};
+
 function App() {
   const navigate = useNavigate(); // Usamos el hook para navegar
 
@@ -51,50 +64,56 @@ function App() {
     fetchCategorias();
   }, []);
 
-  const findCategoriaId = (nombre) => {
-    const normalized = nombre.trim().toLowerCase();
+  const findCategoriaId = (candidatos) => {
+    const nombres = Array.isArray(candidatos) ? candidatos : [candidatos];
     const categoria = categorias.find(
-      (item) => item.nombre?.trim().toLowerCase() === normalized
+      (item) =>
+        nombres.some(
+          (nombre) => normalizeText(item.nombre) === normalizeText(nombre)
+        )
     );
     return categoria ? categoria.id : null;
   };
 
   const categoryIds = {
-    tecnologia: findCategoriaId('Smartphones') || findCategoriaId('Laptops') || findCategoriaId('Mobile Accessories'),
-    auto: findCategoriaId('Vehicle') || findCategoriaId('Motorcycle'),
-    hogar: findCategoriaId('Home Decoration') || findCategoriaId('Furniture'),
-    alimentos: findCategoriaId('Groceries'),
-    ropa: findCategoriaId('Mens Shirts') || findCategoriaId('Womens Dresses') || findCategoriaId('Tops'),
-    deportes: findCategoriaId('Sports Accessories'),
-    otros: findCategoriaId('Beauty') || findCategoriaId('Fragrances'),
+    tecnologia: findCategoriaId(['Smartphones', 'Laptops', 'Mobile Accessories']),
+    auto: findCategoriaId(['Vehicle', 'Motorcycle']),
+    hogar: findCategoriaId(['Home Decoration', 'Furniture']),
+    alimentos: findCategoriaId(['Groceries']),
+    ropa: findCategoriaId(['Mens Shirts', 'Womens Dresses', 'Tops']),
+    deportes: findCategoriaId(['Sports Accessories']),
+    otros: findCategoriaId(['Beauty', 'Fragrances']),
   };
 
   // Filtrar los productos más nuevos
-  const productosMasNuevos = productos
+  const productosMasNuevos = [...productos]
     .sort((a, b) => new Date(b.fecha_creacion) - new Date(a.fecha_creacion))
     .slice(0, 16);
   console.log(productosMasNuevos);
 
+  const matchesCategory = (producto, categoryId) =>
+    normalizeId(producto.categoria_id) === normalizeId(categoryId);
+
   // Filtrar los productos de la categoría "Otros"
-  const productosOtros = productos.filter(producto => producto.categoria_id === categoryIds.otros).slice(0, 16);
+  const productosOtros = productos.filter((producto) => matchesCategory(producto, categoryIds.otros)).slice(0, 16);
   console.log(productosOtros);
 
-  const productosalimentos = productos.filter(producto => producto.categoria_id === categoryIds.alimentos).slice(0, 16);
+  const productosalimentos = productos.filter((producto) => matchesCategory(producto, categoryIds.alimentos)).slice(0, 16);
   console.log(productosOtros);
 
-  const productohogar = productos.filter(producto => producto.categoria_id === categoryIds.hogar).slice(0, 16);
+  const productohogar = productos.filter((producto) => matchesCategory(producto, categoryIds.hogar)).slice(0, 16);
   console.log(productosOtros);
 
-  const productotecnologia = productos.filter(producto => producto.categoria_id === categoryIds.tecnologia).slice(0, 16);
+  const productotecnologia = productos.filter((producto) => matchesCategory(producto, categoryIds.tecnologia)).slice(0, 16);
   console.log(productosOtros);
 
-  const productoauto = productos.filter(producto => producto.categoria_id === categoryIds.auto).slice(0, 16);
+  const productoauto = productos.filter((producto) => matchesCategory(producto, categoryIds.auto)).slice(0, 16);
   console.log(productosOtros);
 
-  const productoropa = productos.filter(producto => producto.categoria_id === categoryIds.ropa).slice(0, 16);
+  const productoropa = productos.filter((producto) => matchesCategory(producto, categoryIds.ropa)).slice(0, 16);
   console.log(productosOtros);
 
-  const productodeportes = productos.filter(producto => producto.categoria_id === categoryIds.deportes).slice(0, 16);
+  const productodeportes = productos.filter((producto) => matchesCategory(producto, categoryIds.deportes)).slice(0, 16);
   console.log(productosOtros);
 
   return (
