@@ -135,9 +135,7 @@ function Navbar() {
         )}
       </div>
       <ul className="nav-links">
-        <li>
-          <a href="#services">Servicios</a>
-        </li>
+      
         <li>
           {user ? (
             <div className="user-container">

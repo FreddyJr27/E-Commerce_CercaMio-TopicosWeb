@@ -18,6 +18,18 @@ const normalizeId = (value) => {
   return Number.isNaN(parsed) ? null : parsed;
 };
 
+const normalizeCategoryKey = (value) => normalizeText(value).replace(/\s+/g, ' ');
+
+const CATEGORY_GROUPS = {
+  tecnologia: ['Smartphones', 'Laptops', 'Mobile Accessories', 'Tablets', 'Tecnologia', 'Tecnología', 'Electrónica', 'Electronica', 'tecnologia'],
+  auto: ['Vehicle', 'Motorcycle', 'Auto', 'Autos', 'Automóvil', 'Automovil', 'Vehiculos', 'Vehículos', 'auto'],
+  hogar: ['Home Decoration', 'Furniture', 'Hogar', 'Muebles', 'Inmuebles', 'Decoracion del hogar', 'Decoración del hogar', 'hogar e inmuebles'],
+  alimentos: ['Groceries', 'Alimentos', 'Comestibles', 'Comida', 'alimentos'],
+  ropa: ['Mens Shirts', 'Womens Dresses', 'Tops', 'Ropa', 'Camisas de hombre', 'Vestidos de mujer', 'Blusas', 'ropa'],
+  deportes: ['Sports Accessories', 'Deportes', 'Accesorios deportivos', 'deportes'],
+  otros: ['Beauty', 'Fragrances', 'Belleza', 'Perfumes', 'otros'],
+};
+
 function App() {
   const navigate = useNavigate(); // Usamos el hook para navegar
 
@@ -69,20 +81,20 @@ function App() {
     const categoria = categorias.find(
       (item) =>
         nombres.some(
-          (nombre) => normalizeText(item.nombre) === normalizeText(nombre)
+          (nombre) => normalizeCategoryKey(item.nombre) === normalizeCategoryKey(nombre)
         )
     );
     return categoria ? categoria.id : null;
   };
 
   const categoryIds = {
-    tecnologia: findCategoriaId(['Smartphones', 'Laptops', 'Mobile Accessories']),
-    auto: findCategoriaId(['Vehicle', 'Motorcycle']),
-    hogar: findCategoriaId(['Home Decoration', 'Furniture']),
-    alimentos: findCategoriaId(['Groceries']),
-    ropa: findCategoriaId(['Mens Shirts', 'Womens Dresses', 'Tops']),
-    deportes: findCategoriaId(['Sports Accessories']),
-    otros: findCategoriaId(['Beauty', 'Fragrances']),
+    tecnologia: findCategoriaId(CATEGORY_GROUPS.tecnologia),
+    auto: findCategoriaId(CATEGORY_GROUPS.auto),
+    hogar: findCategoriaId(CATEGORY_GROUPS.hogar),
+    alimentos: findCategoriaId(CATEGORY_GROUPS.alimentos),
+    ropa: findCategoriaId(CATEGORY_GROUPS.ropa),
+    deportes: findCategoriaId(CATEGORY_GROUPS.deportes),
+    otros: findCategoriaId(CATEGORY_GROUPS.otros),
   };
 
   // Filtrar los productos más nuevos
@@ -91,29 +103,40 @@ function App() {
     .slice(0, 16);
   console.log(productosMasNuevos);
 
-  const matchesCategory = (producto, categoryId) =>
-    normalizeId(producto.categoria_id) === normalizeId(categoryId);
+  const matchesCategory = (producto, categoryKey) => {
+    const categoryId = categoryIds[categoryKey];
+    const aliases = CATEGORY_GROUPS[categoryKey] || [];
+    const productCategoryName = normalizeCategoryKey(
+      producto.categoria_nombre || producto.categoria?.nombre || producto.categoria
+    );
+
+    if (normalizeId(producto.categoria_id) === normalizeId(categoryId)) {
+      return true;
+    }
+
+    return aliases.some((alias) => productCategoryName === normalizeCategoryKey(alias));
+  };
 
   // Filtrar los productos de la categoría "Otros"
-  const productosOtros = productos.filter((producto) => matchesCategory(producto, categoryIds.otros)).slice(0, 16);
+  const productosOtros = productos.filter((producto) => matchesCategory(producto, 'otros')).slice(0, 16);
   console.log(productosOtros);
 
-  const productosalimentos = productos.filter((producto) => matchesCategory(producto, categoryIds.alimentos)).slice(0, 16);
+  const productosalimentos = productos.filter((producto) => matchesCategory(producto, 'alimentos')).slice(0, 16);
   console.log(productosOtros);
 
-  const productohogar = productos.filter((producto) => matchesCategory(producto, categoryIds.hogar)).slice(0, 16);
+  const productohogar = productos.filter((producto) => matchesCategory(producto, 'hogar')).slice(0, 16);
   console.log(productosOtros);
 
-  const productotecnologia = productos.filter((producto) => matchesCategory(producto, categoryIds.tecnologia)).slice(0, 16);
+  const productotecnologia = productos.filter((producto) => matchesCategory(producto, 'tecnologia')).slice(0, 16);
   console.log(productosOtros);
 
-  const productoauto = productos.filter((producto) => matchesCategory(producto, categoryIds.auto)).slice(0, 16);
+  const productoauto = productos.filter((producto) => matchesCategory(producto, 'auto')).slice(0, 16);
   console.log(productosOtros);
 
-  const productoropa = productos.filter((producto) => matchesCategory(producto, categoryIds.ropa)).slice(0, 16);
+  const productoropa = productos.filter((producto) => matchesCategory(producto, 'ropa')).slice(0, 16);
   console.log(productosOtros);
 
-  const productodeportes = productos.filter((producto) => matchesCategory(producto, categoryIds.deportes)).slice(0, 16);
+  const productodeportes = productos.filter((producto) => matchesCategory(producto, 'deportes')).slice(0, 16);
   console.log(productosOtros);
 
   return (

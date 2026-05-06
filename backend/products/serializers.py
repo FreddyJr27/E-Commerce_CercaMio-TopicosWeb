@@ -34,6 +34,7 @@ class ProductoSerializer(serializers.ModelSerializer):
     categoria_id = serializers.PrimaryKeyRelatedField(
         queryset=Categoria.objects.all(), source='categoria'
     )
+    categoria_nombre = serializers.CharField(source='categoria.nombre', read_only=True)
     dimensiones = DimensionesSerializer()  # Habilitar lectura y escritura
     resenas = ResenaSerializer(many=True, read_only=True)
 
@@ -41,7 +42,7 @@ class ProductoSerializer(serializers.ModelSerializer):
         model = Producto
         fields = [
             'id', 'usuario','titulo', 'descripcion', 'precio', 'descuento', 'stock',
-            'categoria_id', 'marca', 'imagen', 'dimensiones',
+            'categoria_id', 'categoria_nombre', 'marca', 'imagen', 'dimensiones',
             'estado_disponibilidad', 'politica_devolucion',
             'cantidad_minima', 'sku', 'fecha_creacion', 'fecha_actualizacion', 'resenas'
         ]
