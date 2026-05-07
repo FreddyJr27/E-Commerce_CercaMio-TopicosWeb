@@ -1,4 +1,4 @@
-from .models import Producto, Categoria, Resena, Dimensiones, Usuario
+from .models import Producto, Categoria, Resena, Dimensiones, Usuario, HistorialVenta
 from rest_framework import viewsets, permissions, status
 from .serializers import (
     ProductoSerializer,
@@ -6,6 +6,7 @@ from .serializers import (
     ResenaSerializer,
     DimensionesSerializer,
     UsuarioSerializer,
+    HistorialVentaSerializer,
 )
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate
@@ -68,6 +69,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = UsuarioSerializer
+
+
+class HistorialVentaViewSet(viewsets.ModelViewSet):
+    queryset = HistorialVenta.objects.select_related('usuario').all().order_by('-creado_en')
+    permission_classes = [permissions.AllowAny]
+    serializer_class = HistorialVentaSerializer
 
     @action(detail=False, methods=['post'], url_path='login')
     def login(self, request):

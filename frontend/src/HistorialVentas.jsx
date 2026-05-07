@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import './HistorialVentas.css';
-
-const ESTADOS_VENTA = ['en proceso', 'cancelada', 'entregada'];
 
 const ventasEnProcesoInicial = [
   {
@@ -78,6 +77,29 @@ function HistorialVentas() {
   const [ventasEnProceso, setVentasEnProceso] = useState(ventasEnProcesoInicial);
   const [historialVentas, setHistorialVentas] = useState(historialVentasInicial);
 
+  useEffect(() => {
+    const fetchVentas = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+        const response = await axios.get(
+          storedUser?.id
+            ? `/api/historial-ventas/?usuario=${storedUser.id}`
+            : '/api/historial-ventas/'
+        );
+        const ventas = Array.isArray(response.data) ? response.data : [];
+
+        if (ventas.length > 0) {
+          setVentasEnProceso(ventas.filter((venta) => venta.estado === 'en proceso'));
+          setHistorialVentas(ventas.filter((venta) => venta.estado !== 'en proceso'));
+        }
+      } catch (error) {
+        console.error('Error al cargar historial de ventas:', error);
+      }
+    };
+
+    fetchVentas();
+  }, []);
+
   const handleCantidadChange = (ventaId, cantidad) => {
     const cantidadNormalizada = Math.max(1, Number(cantidad) || 1);
     setVentasEnProceso((prev) =>
@@ -88,34 +110,28 @@ function HistorialVentas() {
   };
 
   const handleEstadoChange = (ventaId, nuevoEstado) => {
-    if (nuevoEstado === 'entregada') {
-      setVentasEnProceso((prevVentas) => {
-        const ventaEntregada = prevVentas.find((venta) => venta.id === ventaId);
-        if (!ventaEntregada) {
-          return prevVentas;
-        }
+    const updateVenta = async () => {
+      try {
+        const response = await axios.patch(`/api/historial-ventas/${ventaId}/`, {
+          estado: nuevoEstado,
+        });
 
-        const ventaParaHistorial = {
-          ...ventaEntregada,
-          estado: 'entregada',
-          id: `HV-${Date.now()}`,
-        };
-        setHistorialVentas((prevHistorial) => [ventaParaHistorial, ...prevHistorial]);
+        const ventaActualizada = response.data;
+        setVentasEnProceso((prev) => prev.filter((venta) => venta.id !== ventaId));
+        setHistorialVentas((prev) => [ventaActualizada, ...prev]);
+      } catch (error) {
+        console.error('Error al actualizar la venta:', error);
+        alert('No se pudo actualizar la venta.');
+      }
+    };
 
-        return prevVentas.filter((venta) => venta.id !== ventaId);
-      });
-      return;
-    }
-
-    setVentasEnProceso((prev) =>
-      prev.map((venta) =>
-        venta.id === ventaId ? { ...venta, estado: nuevoEstado } : venta
-      )
-    );
+    updateVenta();
   };
 
   const capitalizeState = (estado) =>
     estado.charAt(0).toUpperCase() + estado.slice(1);
+
+  const formatMonto = (monto) => Number(monto || 0).toFixed(2);
 
   return (
     <div className="sales-page">
@@ -141,7 +157,7 @@ function HistorialVentas() {
                 {ventasEnProceso.length > 0 ? (
                   ventasEnProceso.map((venta) => (
                     <tr key={venta.id}>
-                      <td>{venta.id}</td>
+                      <td>{venta.codigo || venta.id}</td>
                       <td>{venta.fecha}</td>
                       <td>{venta.cliente}</td>
                       <td>{venta.producto}</td>
@@ -156,21 +172,24 @@ function HistorialVentas() {
                           }
                         />
                       </td>
-                      <td>${venta.monto.toFixed(2)}</td>
+                      <td>${formatMonto(venta.monto)}</td>
                       <td>
-                        <select
-                          className="sales-select"
-                          value={venta.estado}
-                          onChange={(event) =>
-                            handleEstadoChange(venta.id, event.target.value)
-                          }
-                        >
-                          {ESTADOS_VENTA.map((estado) => (
-                            <option key={estado} value={estado}>
-                              {capitalizeState(estado)}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="sales-actions">
+                          <button
+                            type="button"
+                            className="sales-action-button sales-action-button--accept"
+                            onClick={() => handleEstadoChange(venta.id, 'aceptada')}
+                          >
+                            Aceptar
+                          </button>
+                          <button
+                            type="button"
+                            className="sales-action-button sales-action-button--cancel"
+                            onClick={() => handleEstadoChange(venta.id, 'cancelada')}
+                          >
+                            Cancelar
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -205,12 +224,12 @@ function HistorialVentas() {
                 {historialVentas.length > 0 ? (
                   historialVentas.map((venta) => (
                     <tr key={venta.id}>
-                      <td>{venta.id}</td>
+                      <td>{venta.codigo || venta.id}</td>
                       <td>{venta.fecha}</td>
                       <td>{venta.cliente}</td>
                       <td>{venta.producto}</td>
                       <td>{venta.cantidad}</td>
-                      <td>${venta.monto.toFixed(2)}</td>
+                      <td>${formatMonto(venta.monto)}</td>
                       <td>{capitalizeState(venta.estado)}</td>
                     </tr>
                   ))

@@ -1,12 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 class Usuario(AbstractUser):
     AbstractUser._meta.get_field('email')._unique = True
     telefono = models.CharField(max_length=20, blank=True, null=True)
     direccion = models.CharField(max_length=255, blank=True, null=True)
     fecha_nacimiento = models.DateField(blank=True, null=True)
+    avatar = models.TextField(blank=True, null=True)
         # Agregar related_name a los campos de grupos y permisos
     groups = models.ManyToManyField(
         'auth.Group',
@@ -72,15 +74,39 @@ class Dimensiones(models.Model):
 class Resena(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='resenas')
     calificacion = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
         validators=[
             MinValueValidator(1),  # Valor mínimo permitido
             MaxValueValidator(5)   # Valor máximo permitido
         ]
     )
-    comentario = models.TextField()
-    fecha = models.DateTimeField()
+    comentario = models.TextField(blank=True, null=True)
+    fecha = models.DateTimeField(auto_now_add=True)
     nombre_usuario = models.CharField(max_length=100)
     email_usuario = models.EmailField()
 
     def __str__(self):
         return f'{self.calificacion} por {self.nombre_usuario} del producto {self.producto}'
+
+
+class HistorialVenta(models.Model):
+    class EstadoVenta(models.TextChoices):
+        EN_PROCESO = 'en proceso', 'En proceso'
+        ACEPTADA = 'aceptada', 'Aceptada'
+        CANCELADA = 'cancelada', 'Cancelada'
+        ENTREGADA = 'entregada', 'Entregada'
+
+    codigo = models.CharField(max_length=20, unique=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='historial_ventas')
+    cliente = models.CharField(max_length=150)
+    producto = models.CharField(max_length=200)
+    cantidad = models.PositiveIntegerField(default=1)
+    monto = models.DecimalField(max_digits=12, decimal_places=2)
+    estado = models.CharField(max_length=20, choices=EstadoVenta.choices, default=EstadoVenta.EN_PROCESO)
+    fecha = models.DateField(default=timezone.localdate)
+    creado_en = models.DateTimeField(auto_now_add=True)
+    actualizado_en = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.codigo} - {self.producto} - {self.estado}'

@@ -12,6 +12,7 @@ function EditProfile() {
         email: '',
         telefono: '',
         direccion: '',
+        avatar: '',
         password: '' // Se agrega el campo para la contraseña
     });
     const [initialProfile, setInitialProfile] = useState(null);
@@ -63,6 +64,9 @@ function EditProfile() {
 
             try {
                 const response = await axios.get(`/api/usuarios/${userId}/`); // Usamos axios.get
+                const avatarValue = response.data.avatar || storedAvatar;
+                setAvatarPreview(avatarValue);
+                setInitialAvatar(avatarValue);
                 setProfileData({
                     username: response.data.username,
                     first_name: response.data.first_name,
@@ -70,6 +74,7 @@ function EditProfile() {
                     email: response.data.email,
                     telefono: response.data.telefono,
                     direccion: response.data.direccion,
+                    avatar: avatarValue,
                     password: '' // No llenamos la contraseña al obtener los datos
                 });
                 setInitialProfile({
@@ -79,6 +84,7 @@ function EditProfile() {
                     email: response.data.email,
                     telefono: response.data.telefono,
                     direccion: response.data.direccion,
+                    avatar: avatarValue,
                     password: ''
                 });
                 setLoading(false);
@@ -108,6 +114,7 @@ function EditProfile() {
         const reader = new FileReader();
         reader.onload = () => {
             if (typeof reader.result === 'string') {
+                setProfileData({ ...profileData, avatar: reader.result });
                 setAvatarPreview(reader.result);
             }
         };

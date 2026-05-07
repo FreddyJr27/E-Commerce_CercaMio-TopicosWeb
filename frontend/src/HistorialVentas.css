@@ -85,6 +85,37 @@
   background-color: #ffffff;
 }
 
+.sales-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sales-action-button {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #ffffff;
+}
+
+.sales-action-button--accept {
+  background: #4caf50;
+}
+
+.sales-action-button--cancel {
+  background: #d9534f;
+}
+
+.sales-action-button--accept:hover {
+  background: #3f9443;
+}
+
+.sales-action-button--cancel:hover {
+  background: #c74440;
+}
+
 @media (max-width: 768px) {
   .sales-content {
     padding: 18px;

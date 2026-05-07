@@ -21,6 +21,12 @@ const ProductoPage = () => {
     const [reseñaEnviado, setReseñaEnviado] = useState(false);
     const [usuarioProducto, setUsuarioProducto] = useState(null);
 
+        const reseñasConCalificacion = reseñas.filter((reseña) => Number(reseña.calificacion) > 0);
+        const promedioCalificacion = reseñasConCalificacion.length
+                ? reseñasConCalificacion.reduce((suma, reseña) => suma + Number(reseña.calificacion), 0) /
+                    reseñasConCalificacion.length
+                : 0;
+
     const renderStars = (value) => {
         const rating = Number(value) || 0;
         return Array.from({ length: 5 }, (_, index) => (
@@ -61,12 +67,8 @@ const ProductoPage = () => {
     };
 
     const handleSendReseña = async () => {
-        if (calificacion < 1 || calificacion > 5) {
-            alert("La calificación debe ser entre 1 y 5.");
-            return;
-        }
-        if (comentario.trim() === "") {
-            alert("El comentario no puede estar vacío.");
+        if (calificacion < 1 && comentario.trim() === '') {
+            alert('Selecciona una valoración o escribe un comentario.');
             return;
         }
         const user = JSON.parse(localStorage.getItem('user'));
@@ -76,9 +78,8 @@ const ProductoPage = () => {
             return;
         }
         const nuevaReseña = {
-            calificacion: calificacion,
-            comentario: comentario,
-            fecha: new Date().toISOString(),
+            calificacion: calificacion > 0 ? calificacion : null,
+            comentario: comentario.trim(),
             nombre_usuario: user.username, // Nombre ficticio, reemplázalo por el sistema de autenticación
             email_usuario: user.email, // Email ficticio
         };
@@ -99,6 +100,7 @@ const ProductoPage = () => {
             setIsModalOpen(false);
             setCalificacion(0);
             setComentario('');
+            fetchReseñas();
         } catch (error) {
             alert("Ocurrió un error al enviar la reseña. Por favor, inténtalo de nuevo.");
             console.error("Error al crear la reseña:", error.response?.data || error.message);
@@ -109,7 +111,7 @@ const ProductoPage = () => {
     const fetchReseñas = async () => {
         try {
             const productoIdInt2 = parseInt(productoId, 10);
-            const response = await axios.get(`/api/productos/${productoIdInt2}/resenas`);
+            const response = await axios.get(`/api/productos/${productoIdInt2}/resenas/`);
             setReseñas(response.data);
         } catch (error) {
             console.error('Error al obtener las reseñas:', error);
@@ -130,7 +132,8 @@ const ProductoPage = () => {
     };
 
     const handleCantidadChange = (e) => {
-        const nuevaCantidad = Math.max(1, Math.min(producto.stock, e.target.value)); // Limita la cantidad a un mínimo de 1 y al máximo de stock
+        const cantidadIngresada = parseInt(e.target.value, 10) || 1;
+        const nuevaCantidad = Math.max(1, Math.min(producto.stock, cantidadIngresada));
         setCantidadCompra(nuevaCantidad);
     };
 
@@ -140,21 +143,33 @@ const ProductoPage = () => {
             return;
         }
 
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || !usuarioProducto) {
+            alert('Debes estar logueado para enviar una compra.');
+            return;
+        }
+
+        const montoTotal = Number(producto.precio) * Number(cantidadCompra);
+        const codigo = `VP-${Date.now()}`;
+
         try {
-            const nuevoStock = producto.stock - cantidadCompra;
-            const productoIdInt3 = parseInt(productoId, 10);
-            const productoActualizado = {
-                ...producto,
-                stock: nuevoStock,
-            };
-            await axios.put(`http://127.0.0.1:8000/api/productos/${productoIdInt3}/`, productoActualizado);
-            setProducto(productoActualizado);
+            await axios.post('/api/historial-ventas/', {
+                codigo,
+                usuario: usuarioProducto.id,
+                cliente: user.username,
+                producto: producto.titulo,
+                cantidad: cantidadCompra,
+                monto: montoTotal,
+                estado: 'en proceso',
+            });
             setPagoRealizado(true);
             setIsPaymentModalOpen(false);
             setCantidadCompra(1);
+            alert('Compra enviada al vendedor. Queda en proceso para que la acepte o cancele.');
         } catch (error) {
             console.error("Error al procesar el pago:", error);
             setPagoRealizado(false);
+            alert('No se pudo registrar la compra. Intenta nuevamente.');
         }
     };
 
@@ -214,8 +229,30 @@ const ProductoPage = () => {
                                 </ul>
                             </div>
                             <h3>Información del Vendedor</h3>
-                            <p><strong>Usuario:</strong> {usuarioProducto.username}</p>
-                            <p><strong>Dirección:</strong> {usuarioProducto.direccion}</p>
+                            <p><strong>Usuario:</strong> {usuarioProducto?.username || 'No disponible'}</p>
+                            <p><strong>Correo:</strong> {usuarioProducto?.email || 'No disponible'}</p>
+                            <p><strong>Teléfono:</strong> {usuarioProducto?.telefono || 'No registrado'}</p>
+                            <p><strong>Dirección:</strong> {usuarioProducto?.direccion || 'No disponible'}</p>
+                            <div className="seller-rating">
+                                <p><strong>Valoración del vendedor:</strong> {promedioCalificacion ? `${promedioCalificacion.toFixed(1)} / 5` : 'Sin votos aún'}</p>
+                                <div className="seller-rating__stars" aria-label="Promedio de valoración">
+                                    {promedioCalificacion ? renderStars(Math.round(promedioCalificacion)) : null}
+                                </div>
+                                <div className="rating-stars" role="radiogroup" aria-label="Valoración del vendedor">
+                                    {[1, 2, 3, 4, 5].map((value) => (
+                                        <button
+                                            key={value}
+                                            type="button"
+                                            className={value <= calificacion ? 'star-button star-button--active' : 'star-button'}
+                                            onClick={() => setCalificacion(value)}
+                                            aria-label={`${value} estrella${value > 1 ? 's' : ''}`}
+                                        >
+                                            ★
+                                        </button>
+                                    ))}
+                                </div>
+                                <button className="boton-ventana seller-vote-button" onClick={handleSendReseña}>Votar</button>
+                            </div>
                             <div className="producto-buttons">
                                 <button className="buy-button" onClick={handleComprarClick}>Comprar</button>
                                 <button className="review-button" onClick={handleReseñaClick}>Reseña</button>
@@ -252,20 +289,8 @@ const ProductoPage = () => {
                         <button className="modal-close" onClick={handleCloseModal}>X</button>
                         <h2>Escribe tu reseña</h2>
                         <div>
-                            <label>Calificación:</label>
-                            <div className="rating-stars" role="radiogroup" aria-label="Calificacion">
-                                {[1, 2, 3, 4, 5].map((value) => (
-                                    <button
-                                        key={value}
-                                        type="button"
-                                        className={value <= calificacion ? 'star-button star-button--active' : 'star-button'}
-                                        onClick={() => setCalificacion(value)}
-                                        aria-label={`${value} estrella${value > 1 ? 's' : ''}`}
-                                    >
-                                        ★
-                                    </button>
-                                ))}
-                            </div>
+                            <p><strong>Calificación actual:</strong> {calificacion > 0 ? renderStars(calificacion) : 'Sin seleccionar'}</p>
+                            <p>La valoración se selecciona en la tarjeta del vendedor.</p>
                         </div>
                         <div>
                             <label>Comentario:</label>
@@ -294,8 +319,11 @@ const ProductoPage = () => {
                                 max={producto.stock} // Limita la cantidad al stock disponible
                             />
                         </p>
-                        <p><strong>Precio total:</strong> ${producto.precio * cantidadCompra}</p>
-                        <button onClick={handleProcesarPago} className='boton-ventana'>Procesar pago</button>
+                        <p><strong>Precio total:</strong> ${(Number(producto.precio) * Number(cantidadCompra)).toFixed(2)}</p>
+                        <div className="modal-actions">
+                            <button onClick={handleProcesarPago} className='boton-ventana'>Aceptar</button>
+                            <button onClick={handleClosePaymentModal} className='boton-ventana boton-ventana--secondary'>Cancelar</button>
+                        </div>
                     </div>
                 </div>
             )}

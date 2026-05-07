@@ -68,6 +68,28 @@
     gap: 20px;
 }
 
+.seller-rating {
+    margin-top: 12px;
+    padding: 14px 16px;
+    border: 1px solid #eadff6;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fff, #faf7ff);
+}
+
+.seller-rating p {
+    margin: 0 0 8px;
+    display: block;
+    white-space: normal;
+}
+
+.seller-rating__stars {
+    margin-bottom: 8px;
+}
+
+.seller-vote-button {
+    margin-top: 10px;
+}
+
 .buy-button,
 .review-button {
     padding: 12px 25px;
@@ -162,7 +184,7 @@
     background-color: white;
     padding: 30px;
     border-radius: 8px;
-    width: 500px;
+    width: min(520px, calc(100vw - 32px));
     text-align: left;
     position: relative;
 }
@@ -279,6 +301,20 @@ textarea, input[type="number"] {
 .boton-ventana:hover {
     background-color: #6a1bb1;
     transform: translateY(-1px);
+}
+
+.boton-ventana--secondary {
+    background-color: #8f8f8f;
+}
+
+.boton-ventana--secondary:hover {
+    background-color: #777;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .boton-ventana:active {

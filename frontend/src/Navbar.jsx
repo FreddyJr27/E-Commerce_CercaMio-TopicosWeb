@@ -15,13 +15,30 @@ function Navbar() {
   // Verificar si hay un usuario almacenado en el localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user'); // Obtiene el objeto completo del localStorage
+    let parsedUser = null;
     if (storedUser) {
-      setUser(JSON.parse(storedUser)); // Parsea y establece el objeto del usuario
+      parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser); // Parsea y establece el objeto del usuario
     }
     const storedAvatar = localStorage.getItem('userAvatar');
     if (storedAvatar) {
       setAvatar(storedAvatar);
     }
+
+    const fetchUserAvatar = async () => {
+      if (!parsedUser?.id || storedAvatar) {
+        return;
+      }
+
+      try {
+        const response = await axios.get(`/api/usuarios/${parsedUser.id}/`);
+        if (response.data?.avatar) {
+          setAvatar(response.data.avatar);
+        }
+      } catch (error) {
+        console.error('Error al cargar avatar de usuario:', error);
+      }
+    };
 
     const fetchProductos = async () => {
       try {
@@ -33,6 +50,7 @@ function Navbar() {
     };
 
     fetchProductos();
+    fetchUserAvatar();
   }, []);
 
   // Función para manejar el clic en el botón de iniciar sesión

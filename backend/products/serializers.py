@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import Usuario, Categoria, Producto, Dimensiones, Resena
+from .models import Usuario, Categoria, Producto, Dimensiones, Resena, HistorialVenta
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'telefono', 'direccion', 'fecha_nacimiento']
+        fields = ['id', 'username', 'password', 'first_name', 'last_name', 'email', 'telefono', 'direccion', 'fecha_nacimiento', 'avatar']
         
         
 class CategoriaSerializer(serializers.ModelSerializer):
@@ -24,11 +24,30 @@ class ResenaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Resena
         fields = ['id', 'producto','calificacion', 'comentario', 'fecha', 'nombre_usuario', 'email_usuario']
+        extra_kwargs = {
+            'calificacion': {'required': False, 'allow_null': True},
+            'comentario': {'required': False, 'allow_blank': True, 'allow_null': True},
+        }
 
 class ProductoResenaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
         fields = ['calificacion', 'comentario', 'fecha', 'nombre_usuario', 'email_usuario']
+
+
+class HistorialVentaSerializer(serializers.ModelSerializer):
+    usuario_username = serializers.CharField(source='usuario.username', read_only=True)
+
+    class Meta:
+        model = HistorialVenta
+        fields = [
+            'id', 'codigo', 'usuario', 'usuario_username', 'cliente', 'producto',
+            'cantidad', 'monto', 'estado', 'fecha', 'creado_en', 'actualizado_en'
+        ]
+        extra_kwargs = {
+            'usuario': {'required': True},
+            'estado': {'required': False},
+        }
 
 class ProductoSerializer(serializers.ModelSerializer):
     categoria_id = serializers.PrimaryKeyRelatedField(

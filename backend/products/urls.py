@@ -1,6 +1,6 @@
 from rest_framework import routers
 from django.urls import path, include
-from .views import ProductoViewSet, CategoriaViewSet, ResenaViewSet, DimensionesViewSet, UsuarioViewSet, ProductoResenasAPIView
+from .views import ProductoViewSet, CategoriaViewSet, ResenaViewSet, DimensionesViewSet, UsuarioViewSet, HistorialVentaViewSet, ProductoResenasAPIView
 
 # Instancia del router
 router = routers.DefaultRouter()
@@ -11,6 +11,7 @@ router.register('api/categorias', CategoriaViewSet, basename='categoria')
 router.register('api/resenas', ResenaViewSet, basename='resena')
 router.register('api/dimensiones', DimensionesViewSet, basename='dimensiones')
 router.register('api/usuarios', UsuarioViewSet, basename='usuario')
+router.register('api/historial-ventas', HistorialVentaViewSet, basename='historialventa')
 
 # Incluimos las rutas generadas
 urlpatterns = [
